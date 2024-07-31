@@ -1,3 +1,10 @@
+package com.yandex.app.service;
+
+import com.yandex.app.model.Epic;
+import com.yandex.app.model.Subtask;
+import com.yandex.app.model.Task;
+import com.yandex.app.util.Status;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +47,7 @@ public class TaskManager {
         return epics.get(id);
     }
 
-    public Subtask getSubtask(int id) {
+    public Subtask getSubtaskById(int id) {
         return subtasks.get(id);
     }
 
@@ -57,7 +64,8 @@ public class TaskManager {
     public void addSubtask(Subtask subtask) {
         subtask.setId(generateId());
         subtasks.put(subtask.getId(), subtask);
-        epics.get(subtask.getEpicId()).addSubtasks(subtask);
+        epics.get(subtask.getEpicId()).addSubtask(subtask.getId());
+        updateEpicStatus(subtask.getEpicId());
     }
 
     public void updateTask(Task task) {
@@ -78,15 +86,15 @@ public class TaskManager {
     }
 
     public void deleteEpicById(int id) {
-        for (Subtask subtask : epics.get(id).getSubtasks()) {
-            subtasks.remove(subtask.getId());
+        for (int subtaskId : epics.get(id).getSubtasks()) {
+            subtasks.remove(subtaskId);
         }
         epics.remove(id);
     }
 
     public void deleteSubtaskById(int id) {
         Subtask subtask = subtasks.get(id);
-        epics.get(subtask.getEpicId()).getSubtasks().remove(subtask);
+        epics.get(subtask.getEpicId()).getSubtasks().remove(Integer.valueOf(id));
         subtasks.remove(id);
         updateEpicStatus(subtask.getEpicId());
     }
@@ -108,7 +116,7 @@ public class TaskManager {
         }
     }
 
-    public List<Subtask> getSubtasksOfEpic(int epicId) {
+    public List<Integer> getSubtasksOfEpic(int epicId) {
         return epics.get(epicId).getSubtasks();
     }
 
@@ -122,7 +130,8 @@ public class TaskManager {
         boolean allDone = true;
         boolean allNew = true;
 
-        for (Subtask subtask : epic.getSubtasks()) {
+        for (int subtaskId : epic.getSubtasks()) {
+            Subtask subtask = subtasks.get(subtaskId);
             if (subtask.getStatus() != Status.DONE) {
                 allDone = false;
             }

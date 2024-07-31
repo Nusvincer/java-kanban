@@ -1,13 +1,16 @@
+package com.yandex.app.model;
+
+import com.yandex.app.util.Status;
+
 public class Task {
     private String description;
     private String name;
     private int id;
     private Status status;
 
-    public Task(String description, String name, int id, Status status) {
+    public Task(String description, String name, Status status) {
         this.description = description;
         this.name = name;
-        this.id = id;
         this.status = status;
     }
 
@@ -22,6 +25,7 @@ public class Task {
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -29,6 +33,7 @@ public class Task {
     public int getId() {
         return id;
     }
+
     public void setId(int id) {
         this.id = id;
     }
@@ -36,6 +41,7 @@ public class Task {
     public Status getStatus() {
         return status;
     }
+
     public void setStatus(Status status) {
         this.status = status;
     }
@@ -47,6 +53,7 @@ public class Task {
         Task task = (Task) o;
         return id == task.id;
     }
+
     @Override
     public int hashCode() {
         return id;
