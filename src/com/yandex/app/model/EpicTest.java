@@ -8,7 +8,7 @@ class EpicTest {
 
     @Test
     void testEpicCannotAddSelfAsSubtask() {
-        Epic epic = new Epic("Epic 1", "Description 1", Status.NEW);
+        Epic epic = new Epic("Эпик 1", "Описание 1", Status.NEW);
         epic.setId(1);
 
         assertThrows(IllegalArgumentException.class, () -> {

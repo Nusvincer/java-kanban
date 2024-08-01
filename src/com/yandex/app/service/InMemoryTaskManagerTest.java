@@ -50,8 +50,8 @@ class InMemoryTaskManagerTest {
 
     @Test
     void testNoConflictBetweenGeneratedAndSpecifiedId() {
-        Task task1 = new Task("Task 1", "Description 1", Status.NEW);
-        Task task2 = new Task("Task 2", "Description 2", Status.NEW);
+        Task task1 = new Task("Задача 1", "Описание 1", Status.NEW);
+        Task task2 = new Task("Задача 2", "Описание 2", Status.NEW);
 
         manager.addTask(task1);
         task2.setId(1);  // Setting a specified id
@@ -63,7 +63,7 @@ class InMemoryTaskManagerTest {
 
     @Test
     void testTaskImmutabilityUponAddition() {
-        Task task = new Task("Task 1", "Description 1", Status.NEW);
+        Task task = new Task("Задача 1", "Описание 1", Status.NEW);
         manager.addTask(task);
 
         Task retrievedTask = manager.getTaskById(task.getId());

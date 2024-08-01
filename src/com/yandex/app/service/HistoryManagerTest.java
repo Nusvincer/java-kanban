@@ -19,9 +19,9 @@ class HistoryManagerTest {
 
     @Test
     void testAddAndRetrieveHistory() {
-        Task task1 = new Task("Task 1", "Description 1", Status.NEW);
+        Task task1 = new Task("Задача 1", "Описание 1", Status.NEW);
         task1.setId(1);
-        Task task2 = new Task("Task 2", "Description 2", Status.NEW);
+        Task task2 = new Task("Задача 2", "Описание 2", Status.NEW);
         task2.setId(2);
 
         historyManager.add(task1);
@@ -35,13 +35,13 @@ class HistoryManagerTest {
 
     @Test
     void testHistoryPreservesTaskState() {
-        Task task = new Task("Task 1", "Description 1", Status.NEW);
+        Task task = new Task("Задача 1", "Описание 1", Status.NEW);
         task.setId(1);
 
         historyManager.add(task);
 
-        task.setDescription("Updated Description");
+        task.setDescription("Обновленное описания");
         List<Task> history = historyManager.getHistory();
-        assertNotEquals("Updated Description", history.get(0).getDescription());
+        assertNotEquals("Обновленное описание", history.get(0).getDescription());
     }
 }

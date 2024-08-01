@@ -8,8 +8,8 @@ class SubtaskTest {
 
     @Test
     void testSubtaskEqualityById() {
-        Subtask subtask1 = new Subtask("Subtask 1", "Description 1", Status.NEW, 1);
-        Subtask subtask2 = new Subtask("Subtask 1", "Description 1", Status.NEW, 1);
+        Subtask subtask1 = new Subtask("Задача 1", "Описание 1", Status.NEW, 1);
+        Subtask subtask2 = new Subtask("Задача 2", "Описание 2", Status.NEW, 1);
 
         subtask1.setId(1);
         subtask2.setId(1);
@@ -19,8 +19,8 @@ class SubtaskTest {
 
     @Test
     void testSubtaskInequalityById() {
-        Subtask subtask1 = new Subtask("Subtask 1", "Description 1", Status.NEW, 1);
-        Subtask subtask2 = new Subtask("Subtask 1", "Description 1", Status.NEW, 1);
+        Subtask subtask1 = new Subtask("Задача 1", "Описание 1", Status.NEW, 1);
+        Subtask subtask2 = new Subtask("Задача 2", "Описание 2", Status.NEW, 1);
 
         subtask1.setId(1);
         subtask2.setId(2);

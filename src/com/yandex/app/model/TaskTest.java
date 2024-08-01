@@ -8,8 +8,8 @@ class TaskTest {
 
     @Test
     void testTaskEqualityById() {
-        Task task1 = new Task("Task 1", "Description 1", Status.NEW);
-        Task task2 = new Task("Task 1", "Description 1", Status.NEW);
+        Task task1 = new Task("Задача 1", "Описание 1", Status.NEW);
+        Task task2 = new Task("Задача 2", "Описание 2", Status.NEW);
 
         task1.setId(1);
         task2.setId(1);
@@ -19,8 +19,8 @@ class TaskTest {
 
     @Test
     void testTaskInequalityById() {
-        Task task1 = new Task("Task 1", "Description 1", Status.NEW);
-        Task task2 = new Task("Task 1", "Description 1", Status.NEW);
+        Task task1 = new Task("Задача 1", "Описание 1", Status.NEW);
+        Task task2 = new Task("Задача 2", "Описание 2", Status.NEW);
 
         task1.setId(1);
         task2.setId(2);
