@@ -2,14 +2,13 @@ package com.yandex.app.model;
 
 import com.yandex.app.util.Status;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Epic extends Task {
     private List<Integer> subtasks;
 
-    public Epic(String description, String name, Status status) {
-        super(description, name, status);
+    public Epic(String name, String description, Status status) {
+        super(name, description, status);
         this.subtasks = new ArrayList<>();
     }
 
@@ -19,5 +18,30 @@ public class Epic extends Task {
 
     public void addSubtask(int subtaskId) {
         subtasks.add(subtaskId);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Epic epic = (Epic) o;
+        return getId() == epic.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), getId());
+    }
+
+    @Override
+    public String toString() {
+        return "Эпик{" +
+                "id=" + getId() +
+                ", имя='" + getName() + '\'' +
+                ", описание='" + getDescription() + '\'' +
+                ", статус=" + getStatus() +
+                ", подзадачи=" + subtasks +
+                '}';
     }
 }

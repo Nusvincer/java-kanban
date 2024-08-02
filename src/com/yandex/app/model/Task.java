@@ -2,15 +2,17 @@ package com.yandex.app.model;
 
 import com.yandex.app.util.Status;
 
+import java.util.Objects;
+
 public class Task {
     private String description;
     private String name;
-    private int id;
+    protected int id;
     private Status status;
 
-    public Task(String description, String name, Status status) {
-        this.description = description;
+    public Task(String name, String description, Status status) {
         this.name = name;
+        this.description = description;
         this.status = status;
     }
 
@@ -56,6 +58,6 @@ public class Task {
 
     @Override
     public int hashCode() {
-        return id;
+        return Objects.hash(id);
     }
 }

@@ -3,13 +3,15 @@ package com.yandex.app;
 import com.yandex.app.model.Epic;
 import com.yandex.app.model.Subtask;
 import com.yandex.app.model.Task;
-import com.yandex.app.service.InMemoryTaskManager;
+import com.yandex.app.service.HistoryManager;
 import com.yandex.app.service.TaskManager;
+import com.yandex.app.util.Managers;
 import com.yandex.app.util.Status;
 
 public class Main {
     public static void main(String[] args) {
-        TaskManager manager = new InMemoryTaskManager();
+        TaskManager manager = Managers.getDefault();
+        HistoryManager historyManager = Managers.getDefaultHistory();
 
         Task task1 = new Task("Задача 1", "Описание 1", Status.NEW);
         Task task2 = new Task("Задача 2", "Описание 2", Status.NEW);
@@ -43,5 +45,10 @@ public class Main {
         manager.deleteEpicById(epic1.getId());
         System.out.println("Задачи после удаления: " + manager.getAllTasks());
         System.out.println("Эпики после удаления: " + manager.getAllEpics());
+        historyManager.add(manager.getTaskById(task2.getId()));
+        historyManager.add(manager.getEpicById(epic2.getId()));
+        historyManager.add(manager.getSubtaskById(subtask3.getId()));
+
+        System.out.println("История: " + historyManager.getHistory());
     }
 }

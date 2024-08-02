@@ -9,17 +9,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class InMemoryTaskManager implements TaskManager {
+ public class InMemoryTaskManager implements TaskManager {
     private Map<Integer, Task> tasks;
     private Map<Integer, Epic> epics;
     private Map<Integer, Subtask> subtasks;
     private int currentId;
+    private HistoryManager historyManager;
 
     public InMemoryTaskManager() {
         tasks = new HashMap<>();
         epics = new HashMap<>();
         subtasks = new HashMap<>();
         currentId = 0;
+        historyManager = new InMemoryHistoryManager();
     }
 
     private int generateId() {
@@ -43,17 +45,29 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task getTaskById(int id) {
-        return tasks.get(id);
+        Task task = tasks.get(id);
+        if (task != null) {
+            historyManager.add(task);
+        }
+        return task;
     }
 
     @Override
     public Epic getEpicById(int id) {
-        return epics.get(id);
+        Epic epic = epics.get(id);
+        if (epic != null) {
+            historyManager.add(epic);
+        }
+        return epic;
     }
 
     @Override
     public Subtask getSubtaskById(int id) {
-        return subtasks.get(id);
+        Subtask subtask = subtasks.get(id);
+        if (subtask != null) {
+            historyManager.add(subtask);
+        }
+        return subtask;
     }
 
     @Override
@@ -68,15 +82,14 @@ public class InMemoryTaskManager implements TaskManager {
         epics.put(epic.getId(), epic);
     }
 
-    @Override
-    public void addSubtask(Subtask subtask) {
-        subtask.setId(generateId());
-        subtasks.put(subtask.getId(), subtask);
-        Epic epic = getEpicById(subtask.getEpicId());
-        if (epic != null) {
-            epic.addSubtask(subtask.getId());
-        }
-    }
+     public void addSubtask(Subtask subtask) {
+         subtask.setId(generateId());
+         subtasks.put(subtask.getId(), subtask);
+         Epic epic = getEpicById(subtask.getEpicId());
+         if (epic != null) {
+             epic.addSubtask(subtask.getId());
+         }
+     }
 
     @Override
     public void updateTask(Task task) {
