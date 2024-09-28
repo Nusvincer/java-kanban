@@ -1,4 +1,4 @@
-package test.service;
+package test;
 
 import com.yandex.app.model.Task;
 import com.yandex.app.service.TaskManager;
