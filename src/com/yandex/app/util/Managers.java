@@ -6,20 +6,11 @@ import com.yandex.app.service.HistoryManager;
 import com.yandex.app.service.InMemoryHistoryManager;
 
 public class Managers {
-    private static TaskManager taskManager;
-    private static HistoryManager historyManager;
-
     public static TaskManager getDefault() {
-        if (taskManager == null) {
-            taskManager = new InMemoryTaskManager();
-        }
-        return taskManager;
+        return new InMemoryTaskManager();
     }
 
     public static HistoryManager getDefaultHistory() {
-        if (historyManager == null) {
-            historyManager = new InMemoryHistoryManager();
-        }
-        return historyManager;
+        return new InMemoryHistoryManager();
     }
 }

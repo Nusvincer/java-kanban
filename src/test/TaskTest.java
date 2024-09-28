@@ -1,4 +1,4 @@
-package test.model;
+package test;
 
 import com.yandex.app.model.Task;
 import com.yandex.app.util.Status;

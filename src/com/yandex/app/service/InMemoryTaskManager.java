@@ -109,7 +109,6 @@ import java.util.Map;
     @Override
     public void deleteTaskById(int id) {
         tasks.remove(id);
-        historyManager.remove(id);
     }
 
     @Override
@@ -118,10 +117,8 @@ import java.util.Map;
         if (epic != null) {
             for (int subtaskId : epic.getSubtasks()) {
                 subtasks.remove(subtaskId);
-                historyManager.remove(subtaskId);
             }
         }
-        historyManager.remove(id);
     }
 
     @Override
@@ -133,6 +130,5 @@ import java.util.Map;
                 epic.getSubtasks().remove(Integer.valueOf(id));
             }
         }
-        historyManager.remove(id);
     }
 }

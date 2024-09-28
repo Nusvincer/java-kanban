@@ -1,4 +1,4 @@
-package test.model;
+package test;
 
 import com.yandex.app.model.Subtask;
 import com.yandex.app.util.Status;
