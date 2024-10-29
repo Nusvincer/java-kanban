@@ -8,8 +8,6 @@ import com.yandex.app.util.Managers;
 import com.yandex.app.util.Status;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SubtaskManagerTest {

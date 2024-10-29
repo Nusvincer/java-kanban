@@ -28,6 +28,10 @@ import java.util.Map;
         return ++currentId;
     }
 
+     public Epic getEpicById(Integer epicId) {
+         return epics.get(epicId);
+     }
+
     @Override
     public List<Task> getAllTasks() {
         return new ArrayList<>(tasks.values());
