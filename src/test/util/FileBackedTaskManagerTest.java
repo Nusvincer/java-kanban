@@ -4,6 +4,7 @@ import com.yandex.app.model.Epic;
 import com.yandex.app.model.Subtask;
 import com.yandex.app.model.Task;
 import com.yandex.app.service.FileBackedTaskManager;
+import com.yandex.app.util.ManagerSaveException;
 import com.yandex.app.util.Status;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,7 +24,7 @@ class FileBackedTaskManagerTest {
     @BeforeEach
     void setUp() throws IOException {
         tempFile = File.createTempFile("taskManagerTest", ".csv");
-        tempFile.deleteOnExit(); // Удаление файла при завершении теста
+        tempFile.deleteOnExit();
         manager = new FileBackedTaskManager(tempFile);
     }
 
@@ -41,10 +42,10 @@ class FileBackedTaskManagerTest {
         manager.save();
         try {
             List<String> lines = Files.readAllLines(tempFile.toPath());
-            assertEquals(1, lines.size()); // Только заголовок
+            assertEquals(1, lines.size());
             assertEquals("id,type,name,status,description,epic", lines.get(0));
         } catch (IOException e) {
-            fail("IOException возникла при читении файла: " + e.getMessage());
+            fail("IOException возникла при чтении файла: " + e.getMessage());
         }
     }
 
@@ -77,13 +78,25 @@ class FileBackedTaskManagerTest {
         sb.append("2,TASK,Task 2,IN_PROGRESS,Description 2,\n");
         sb.append("3,EPIC,Epic 1,NEW,Epic Description,\n");
         sb.append("4,SUBTASK,Subtask 1,NEW,Subtask Description,3\n");
-
         try {
             Files.writeString(tempFile.toPath(), sb.toString());
             FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile);
             assertEquals(1, loadedManager.getAllSubtasks().size());
         } catch (IOException e) {
             fail("IOException возникла при записи или чтении файла: " + e.getMessage());
+        }
+    }
+
+    @Test
+    void testLoadInvalidDataFormat() {
+        String invalidData = "id,type,name,status,description,epic\n" + "1,TASK,Task 1,NEW,Description 1,\n" + "invalid_line\n";
+        try {
+            Files.writeString(tempFile.toPath(), invalidData);
+            assertThrows(ManagerSaveException.class, () -> {
+                FileBackedTaskManager.loadFromFile(tempFile);
+            });
+        } catch (IOException e) {
+            fail("IOException возникла при записи файла: " + e.getMessage());
         }
     }
 }

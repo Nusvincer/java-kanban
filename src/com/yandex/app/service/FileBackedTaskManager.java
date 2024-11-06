@@ -13,6 +13,7 @@ import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File file;
+    private static final int EXPECTED_NUMBER_OF_COLUMNS = 6;
 
     public FileBackedTaskManager(File file) {
         this.file = file;
@@ -35,6 +36,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         try {
             Files.writeString(file.toPath(), sb.toString());
         } catch (IOException e) {
+            System.err.println("Ошибка при сохранении в файл: " + file.getAbsolutePath());
             throw new ManagerSaveException("Ошибка при сохранении в файл", e);
         }
     }
@@ -61,6 +63,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         try {
             List<String> lines = Files.readAllLines(file.toPath());
             for (String line : lines.subList(1, lines.size())) {
+                if (line.trim().isEmpty()) {
+                    continue;
+                }
+
+                String[] columns = line.split(",", -1);
+                if (columns.length != EXPECTED_NUMBER_OF_COLUMNS) {
+                    throw new ManagerSaveException("Некорректная строка: " + line);
+                }
+
                 Task task = fromString(line);
                 if (task != null) {
                     if (task instanceof Epic) {
@@ -73,7 +84,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 }
             }
         } catch (IOException e) {
+            System.err.println("Ошибка при загрузке из файла: " + file.getAbsolutePath());
             throw new ManagerSaveException("Ошибка при загрузке из файла", e);
+        } catch (ManagerSaveException e) {
+            System.err.println("Ошибка при обработке файла: " + file.getAbsolutePath());
+            throw e;
+        } catch (Exception e) {
+            System.err.println("Ошибка при обработке файла: " + file.getAbsolutePath());
+            throw new ManagerSaveException("Ошибка при обработке файла", e);
         }
         return manager;
     }
