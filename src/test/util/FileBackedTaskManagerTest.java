@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -43,7 +45,7 @@ class FileBackedTaskManagerTest {
         try {
             List<String> lines = Files.readAllLines(tempFile.toPath());
             assertEquals(1, lines.size());
-            assertEquals("id,type,name,status,description,epic", lines.get(0));
+            assertEquals("id,type,name,status,description,duration,startTime,epic", lines.get(0));
         } catch (IOException e) {
             fail("IOException возникла при чтении файла: " + e.getMessage());
         }
@@ -52,19 +54,23 @@ class FileBackedTaskManagerTest {
     @Test
     void testSaveMultipleTasks() {
         Task task1 = new Task("Task 1", "Description 1", Status.NEW);
-        Task task2 = new Task("Task 2", "Description 2", Status.IN_PROGRESS);
+        task1.setStartTime(LocalDateTime.of(2024, 11, 18, 10, 0));
+        task1.setDuration(Duration.ofMinutes(120));
+
         Epic epic = new Epic("Epic 1", "Epic Description", Status.NEW);
         Subtask subtask = new Subtask("Subtask 1", "Subtask Description", Status.NEW, epic.getId());
+        subtask.setStartTime(LocalDateTime.of(2024, 11, 18, 13, 0));
+        subtask.setDuration(Duration.ofMinutes(90));
 
         manager.addTask(task1);
-        manager.addTask(task2);
         manager.addEpic(epic);
         manager.addSubtask(subtask);
+
         manager.save();
 
         try {
             List<String> lines = Files.readAllLines(tempFile.toPath());
-            assertEquals(5, lines.size());
+            assertEquals(4, lines.size(), "Должно быть 4 строки: заголовок, задача, эпик и подзадача.");
         } catch (IOException e) {
             fail("IOException возникла при чтении файла: " + e.getMessage());
         }
@@ -73,15 +79,30 @@ class FileBackedTaskManagerTest {
     @Test
     void testLoadMultipleTasks() {
         StringBuilder sb = new StringBuilder();
-        sb.append("id,type,name,status,description,epic\n");
-        sb.append("1,TASK,Task 1,NEW,Description 1,\n");
-        sb.append("2,TASK,Task 2,IN_PROGRESS,Description 2,\n");
-        sb.append("3,EPIC,Epic 1,NEW,Epic Description,\n");
-        sb.append("4,SUBTASK,Subtask 1,NEW,Subtask Description,3\n");
+        sb.append("id,type,name,status,description,duration,startTime,epic\n");
+        sb.append("1,TASK,Task 1,NEW,Description 1,120,2024-11-18T10:00,\n");
+        sb.append("2,EPIC,Epic 1,NEW,Epic Description,,,\n");
+        sb.append("3,SUBTASK,Subtask 1,NEW,Subtask Description,90,2024-11-18T13:00,2\n");
+
         try {
             Files.writeString(tempFile.toPath(), sb.toString());
+
             FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile);
-            assertEquals(1, loadedManager.getAllSubtasks().size());
+
+            Task loadedTask = loadedManager.getTaskById(1);
+            Epic loadedEpic = loadedManager.getEpicById(2);
+            Subtask loadedSubtask = loadedManager.getSubtaskById(3);
+
+            assertNotNull(loadedTask, "Задача должна быть загружена.");
+            assertEquals(LocalDateTime.of(2024, 11, 18, 10, 0), loadedTask.getStartTime(), "Время начала задачи должно совпадать.");
+            assertEquals(Duration.ofMinutes(120), loadedTask.getDuration(), "Продолжительность задачи должна совпадать.");
+
+            assertNotNull(loadedEpic, "Эпик должен быть загружен.");
+            assertEquals("Epic 1", loadedEpic.getName(), "Название эпика должно совпадать.");
+
+            assertNotNull(loadedSubtask, "Подзадача должна быть загружена.");
+            assertEquals(2, loadedSubtask.getEpicId(), "ID эпика у подзадачи должен совпадать.");
+            assertEquals(Duration.ofMinutes(90), loadedSubtask.getDuration(), "Продолжительность подзадачи должна совпадать.");
         } catch (IOException e) {
             fail("IOException возникла при записи или чтении файла: " + e.getMessage());
         }
@@ -89,14 +110,37 @@ class FileBackedTaskManagerTest {
 
     @Test
     void testLoadInvalidDataFormat() {
-        String invalidData = "id,type,name,status,description,epic\n" + "1,TASK,Task 1,NEW,Description 1,\n" + "invalid_line\n";
+        String invalidData = """
+        id,type,name,status,description,duration,startTime,epic
+        1,TASK,Task 1,NEW,Description 1,,,
+        invalid_line
+        """;
+
         try {
             Files.writeString(tempFile.toPath(), invalidData);
-            assertThrows(ManagerSaveException.class, () -> {
+            ManagerSaveException exception = assertThrows(ManagerSaveException.class, () -> {
                 FileBackedTaskManager.loadFromFile(tempFile);
             });
+
+            assertEquals("Ошибка при разборе строки: invalid_line", exception.getMessage(), "Сообщение об ошибке должно совпадать.");
         } catch (IOException e) {
-            fail("IOException возникла при записи файла: " + e.getMessage());
+            fail("Ошибка записи тестовых данных в файл: " + e.getMessage());
         }
+    }
+
+    @Test
+    void testSaveAndLoadWithNewFields() {
+        Task task = new Task("Task", "Description", Status.NEW);
+        task.setStartTime(LocalDateTime.of(2024, 11, 18, 10, 0));
+        task.setDuration(Duration.ofMinutes(60));
+
+        manager.addTask(task);
+        manager.save();
+
+        FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile);
+
+        Task loadedTask = loadedManager.getTaskById(task.getId());
+        assertEquals(task.getStartTime(), loadedTask.getStartTime(), "Время начала должно совпадать");
+        assertEquals(task.getDuration(), loadedTask.getDuration(), "Продолжительность должна совпадать");
     }
 }
