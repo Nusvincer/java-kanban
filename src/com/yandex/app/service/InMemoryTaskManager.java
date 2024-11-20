@@ -164,7 +164,6 @@ public class InMemoryTaskManager implements TaskManager {
                 calculateEpicProperties(epic.getId());
             }
         }
-        tasks.remove(id);
         historyManager.remove(id);
     }
 
@@ -174,9 +173,6 @@ public class InMemoryTaskManager implements TaskManager {
         if (epic != null) {
             for (Integer subtaskId : epic.getSubtasks()) {
                 prioritizedTasks.remove(subtasks.remove(subtaskId));
-            for (int subtaskId : epic.getSubtasks()) {
-                subtasks.remove(subtaskId);
-
                 historyManager.remove(subtaskId);
             }
         }
@@ -238,6 +234,5 @@ public class InMemoryTaskManager implements TaskManager {
                 throw new IllegalArgumentException("Задача пересекается с другой задачей.");
             }
         }
-        historyManager.remove(id);
     }
 }

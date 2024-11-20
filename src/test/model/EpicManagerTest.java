@@ -98,8 +98,4 @@ public class EpicManagerTest {
         assertNull(epic.getDuration(), "Если нет подзадач, продолжительность эпика должна быть null");
         assertNull(epic.getEndTime(), "Если нет подзадач, время окончания эпика должно быть null");
     }
-        assertEquals(2, epics.size(), "Должно быть 2 epics");
-        assertTrue(epics.contains(epic1),"Epic 1 должен быть в списке");
-        assertTrue(epics.contains(epic2), "Epic 2 должен быть в списке");
-    }
 }
