@@ -74,22 +74,24 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void addTask(Task task) {
-        validateTask(task);
+        if (task.getStartTime() != null) {
+            validateTask(task);
+            prioritizedTasks.add(task);
+        }
 
         task.setId(generateId());
         tasks.put(task.getId(), task);
-        if (task.getStartTime() != null) {
-            prioritizedTasks.add(task);
-        }
     }
 
     @Override
     public void addSubtask(Subtask subtask) {
-        validateTask(subtask);
+        if (subtask.getStartTime() != null) {
+            validateTask(subtask);
+            prioritizedTasks.add(subtask);
+        }
 
         subtask.setId(generateId());
         subtasks.put(subtask.getId(), subtask);
-        prioritizedTasks.add(subtask);
 
         Epic epic = epics.get(subtask.getEpicId());
         if (epic != null) {
@@ -111,10 +113,13 @@ public class InMemoryTaskManager implements TaskManager {
         }
 
         prioritizedTasks.remove(tasks.get(task.getId()));
-        tasks.put(task.getId(), task);
+
         if (task.getStartTime() != null) {
+            validateTask(task);
             prioritizedTasks.add(task);
         }
+
+        tasks.put(task.getId(), task);
     }
 
     @Override
@@ -134,8 +139,12 @@ public class InMemoryTaskManager implements TaskManager {
         }
 
         prioritizedTasks.remove(subtasks.get(subtask.getId()));
+
         subtasks.put(subtask.getId(), subtask);
-        prioritizedTasks.add(subtask);
+
+        if (subtask.getStartTime() != null) {
+            prioritizedTasks.add(subtask);
+        }
 
         Epic epic = epics.get(subtask.getEpicId());
         if (epic != null) {
@@ -220,19 +229,22 @@ public class InMemoryTaskManager implements TaskManager {
                 task2.getStartTime() == null || task2.getEndTime() == null) {
             return false;
         }
-        return !task1.getEndTime().isBefore(task2.getStartTime()) &&
-                !task1.getStartTime().isAfter(task2.getEndTime());
+
+        return task1.getStartTime().isBefore(task2.getEndTime()) &&
+                task1.getEndTime().isAfter(task2.getStartTime());
     }
 
     private void validateTask(Task task) {
-        if (task.getStartTime() != null) {
-            Task lower = prioritizedTasks.lower(task);
-            Task higher = prioritizedTasks.higher(task);
+        if (task.getStartTime() == null) {
+            throw new IllegalArgumentException("Задача должна иметь startTime.");
+        }
 
-            if ((lower != null && isTimeIntersecting(task, lower)) ||
-                    (higher != null && isTimeIntersecting(task, higher))) {
-                throw new IllegalArgumentException("Задача пересекается с другой задачей.");
-            }
+        Task lower = prioritizedTasks.lower(task);
+        Task higher = prioritizedTasks.higher(task);
+
+        if ((lower != null && isTimeIntersecting(task, lower)) ||
+                (higher != null && isTimeIntersecting(task, higher))) {
+            throw new IllegalArgumentException("Задача пересекается с другой задачей.");
         }
     }
 }

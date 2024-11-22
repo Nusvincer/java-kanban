@@ -36,4 +36,15 @@ public class TaskPriorityTest {
         assertEquals(task1, prioritizedTasks.get(1), "Вторая задача должна быть следующей по времени начала");
         assertFalse(prioritizedTasks.contains(task3), "Задача без времени начала не должна попадать в отсортированный список");
     }
+
+    @Test
+    public void testAddTaskWithNullStartTime() {
+        InMemoryTaskManager manager = new InMemoryTaskManager();
+
+        Task task = new Task("Task with no startTime", "Description", Status.NEW);
+
+        manager.addTask(task);
+
+        assertTrue(manager.getPrioritizedTasks().isEmpty(), "Задача с null startTime не должна быть в prioritizedTasks.");
+    }
 }
