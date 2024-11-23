@@ -6,6 +6,8 @@ import com.yandex.app.service.InMemoryTaskManager;
 import com.yandex.app.service.TaskManager;
 import com.yandex.app.util.Managers;
 import com.yandex.app.util.Status;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -15,7 +17,17 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class EpicManagerTest {
+    private TaskManager manager;
 
+    @BeforeEach
+    void setUp() {
+        manager = new InMemoryTaskManager();
+    }
+
+    @AfterEach
+    void tearDown() {
+        manager.clearAll(); // Очищаем все данные после каждого теста
+    }
     @Test
     public void testAddAndGetEpic() {
         TaskManager manager = Managers.getDefault();

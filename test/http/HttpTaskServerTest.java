@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.yandex.app.http.HttpTaskServer;
 import com.yandex.app.model.Task;
 import com.yandex.app.util.GsonProvider;
-import com.yandex.app.util.Managers;
 import com.yandex.app.util.Status;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +26,6 @@ public class HttpTaskServerTest {
 
     @BeforeEach
     void setUp() throws IOException {
-        Managers.getDefault().clearAll();
         server = new HttpTaskServer();
         server.start();
         client = HttpClient.newHttpClient();
@@ -35,7 +33,7 @@ public class HttpTaskServerTest {
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         if (server != null) {
             server.stop();
         }
