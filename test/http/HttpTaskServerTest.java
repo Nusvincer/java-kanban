@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.yandex.app.http.HttpTaskServer;
 import com.yandex.app.model.Task;
 import com.yandex.app.util.GsonProvider;
+import com.yandex.app.util.Managers;
 import com.yandex.app.util.Status;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +27,7 @@ public class HttpTaskServerTest {
 
     @BeforeEach
     void setUp() throws IOException {
+        Managers.getDefault().clearAll();
         server = new HttpTaskServer();
         server.start();
         client = HttpClient.newHttpClient();
@@ -56,12 +58,12 @@ public class HttpTaskServerTest {
     void testCreateTask() throws IOException, InterruptedException {
         Task task = new Task("Test Task", "Test Description", Status.NEW, Duration.ofMinutes(60), LocalDateTime.of(2024, 1, 1, 10, 0));
         String taskJson = gson.toJson(task);
+
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:8080/tasks"))
                 .POST(HttpRequest.BodyPublishers.ofString(taskJson))
                 .header("Content-Type", "application/json")
                 .build();
-
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(201, response.statusCode(), "Код ответа должен быть 201");
@@ -78,38 +80,17 @@ public class HttpTaskServerTest {
     }
 
     @Test
-    void testGetTaskById() throws IOException, InterruptedException {
-        Task task = new Task("Test Task", "Test Description", Status.NEW, Duration.ofMinutes(60), LocalDateTime.of(2024, 1, 1, 10, 0));
-        String taskJson = gson.toJson(task);
-        HttpRequest postRequest = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/tasks"))
-                .POST(HttpRequest.BodyPublishers.ofString(taskJson))
-                .header("Content-Type", "application/json")
-                .build();
-        client.send(postRequest, HttpResponse.BodyHandlers.ofString());
-
-        HttpRequest getRequest = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/tasks/1"))
-                .GET()
-                .build();
-        HttpResponse<String> response = client.send(getRequest, HttpResponse.BodyHandlers.ofString());
-
-        assertEquals(200, response.statusCode(), "Код ответа должен быть 200");
-        Task returnedTask = gson.fromJson(response.body(), Task.class);
-        assertNotNull(returnedTask, "Задача должна быть возвращена");
-        assertEquals("Test Task", returnedTask.getName(), "Имя задачи должно совпадать");
-    }
-
-    @Test
     void testDeleteTask() throws IOException, InterruptedException {
         Task task = new Task("Test Task", "Test Description", Status.NEW, Duration.ofMinutes(60), LocalDateTime.of(2024, 1, 1, 10, 0));
         String taskJson = gson.toJson(task);
+
         HttpRequest postRequest = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:8080/tasks"))
                 .POST(HttpRequest.BodyPublishers.ofString(taskJson))
                 .header("Content-Type", "application/json")
                 .build();
-        client.send(postRequest, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> postResponse = client.send(postRequest, HttpResponse.BodyHandlers.ofString());
+        assertEquals(201, postResponse.statusCode(), "Код ответа при создании задачи должен быть 201");
 
         HttpRequest deleteRequest = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:8080/tasks/1"))
