@@ -247,5 +247,10 @@ public class InMemoryTaskManager implements TaskManager {
             throw new IllegalArgumentException("Задача пересекается с другой задачей.");
         }
     }
+
+    @Override
+    public List<Task> getHistory() {
+        return historyManager.getHistory();
+    }
 }
 

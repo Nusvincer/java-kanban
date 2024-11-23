@@ -39,5 +39,7 @@ public interface TaskManager {
 
     List<Task> getPrioritizedTasks();
 
+    List<Task> getHistory();
+
     boolean isTimeIntersecting(Task task1, Task task2);
 }
