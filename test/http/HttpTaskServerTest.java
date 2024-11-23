@@ -30,6 +30,7 @@ public class HttpTaskServerTest {
         server.start();
         client = HttpClient.newHttpClient();
         gson = GsonProvider.getGson();
+        server.getTaskManager().clearAll();
     }
 
     @AfterEach

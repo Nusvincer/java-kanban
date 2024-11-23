@@ -37,6 +37,10 @@ public class HttpTaskServer {
         server.createContext("/prioritized", this::handlePrioritizedTasks);
     }
 
+    public TaskManager getTaskManager() {
+        return manager;
+    }
+
     private void handleTasks(HttpExchange exchange) throws IOException {
         handleEntities(exchange, "task");
     }
@@ -58,30 +62,18 @@ public class HttpTaskServer {
             if ("GET".equalsIgnoreCase(method)) {
                 if (pathSegments.length == 2) {
                     switch (entityType) {
-                        case "task":
-                            response = gson.toJson(manager.getAllTasks());
-                            break;
-                        case "subtask":
-                            response = gson.toJson(manager.getAllSubtasks());
-                            break;
-                        case "epic":
-                            response = gson.toJson(manager.getAllEpics());
-                            break;
+                        case "task" -> response = gson.toJson(manager.getAllTasks());
+                        case "subtask" -> response = gson.toJson(manager.getAllSubtasks());
+                        case "epic" -> response = gson.toJson(manager.getAllEpics());
                     }
                 } else if (pathSegments.length == 3) {
                     int id = Integer.parseInt(pathSegments[2]);
-                    Object entity = null;
-                    switch (entityType) {
-                        case "task":
-                            entity = manager.getTaskById(id);
-                            break;
-                        case "subtask":
-                            entity = manager.getSubtaskById(id);
-                            break;
-                        case "epic":
-                            entity = manager.getEpicById(id);
-                            break;
-                    }
+                    Object entity = switch (entityType) {
+                        case "task" -> manager.getTaskById(id);
+                        case "subtask" -> manager.getSubtaskById(id);
+                        case "epic" -> manager.getEpicById(id);
+                        default -> null;
+                    };
                     if (entity == null) {
                         sendResponse(exchange, 404, "Entity not found");
                         return;
@@ -91,46 +83,44 @@ public class HttpTaskServer {
                 sendResponse(exchange, 200, response);
             } else if ("POST".equalsIgnoreCase(method)) {
                 String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-                switch (entityType) {
-                    case "task":
-                        Task task = gson.fromJson(body, Task.class);
-                        if (task.getId() == 0) {
-                            manager.addTask(task);
-                        } else {
-                            manager.updateTask(task);
+                try {
+                    switch (entityType) {
+                        case "task" -> {
+                            Task task = gson.fromJson(body, Task.class);
+                            if (task.getId() == 0) {
+                                manager.addTask(task);
+                            } else {
+                                manager.updateTask(task);
+                            }
                         }
-                        break;
-                    case "subtask":
-                        Subtask subtask = gson.fromJson(body, Subtask.class);
-                        if (subtask.getId() == 0) {
-                            manager.addSubtask(subtask);
-                        } else {
-                            manager.updateSubtask(subtask);
+                        case "subtask" -> {
+                            Subtask subtask = gson.fromJson(body, Subtask.class);
+                            if (subtask.getId() == 0) {
+                                manager.addSubtask(subtask);
+                            } else {
+                                manager.updateSubtask(subtask);
+                            }
                         }
-                        break;
-                    case "epic":
-                        Epic epic = gson.fromJson(body, Epic.class);
-                        if (epic.getId() == 0) {
-                            manager.addEpic(epic);
-                        } else {
-                            manager.updateEpic(epic);
+                        case "epic" -> {
+                            Epic epic = gson.fromJson(body, Epic.class);
+                            if (epic.getId() == 0) {
+                                manager.addEpic(epic);
+                            } else {
+                                manager.updateEpic(epic);
+                            }
                         }
-                        break;
+                    }
+                    sendResponse(exchange, 201, "");
+                } catch (Exception e) {
+                    sendResponse(exchange, 400, "Invalid JSON format");
                 }
-                sendResponse(exchange, 201, "");
             } else if ("DELETE".equalsIgnoreCase(method)) {
                 if (pathSegments.length == 3) {
                     int id = Integer.parseInt(pathSegments[2]);
                     switch (entityType) {
-                        case "task":
-                            manager.deleteTaskById(id);
-                            break;
-                        case "subtask":
-                            manager.deleteSubtaskById(id);
-                            break;
-                        case "epic":
-                            manager.deleteEpicById(id);
-                            break;
+                        case "task" -> manager.deleteTaskById(id);
+                        case "subtask" -> manager.deleteSubtaskById(id);
+                        case "epic" -> manager.deleteEpicById(id);
                     }
                 }
                 sendResponse(exchange, 200, "");
