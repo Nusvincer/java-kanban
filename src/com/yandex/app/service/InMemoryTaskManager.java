@@ -188,13 +188,30 @@ public class InMemoryTaskManager implements TaskManager {
         historyManager.remove(id);
     }
 
-    public void calculateEpicProperties(int epicId) {
+    @Override
+    public void clearAll() {
+        tasks.clear();
+        epics.clear();
+        subtasks.clear();
+        prioritizedTasks.clear();
+        historyManager.clear();
+    }
+
+    private void calculateEpicProperties(int epicId) {
         Epic epic = epics.get(epicId);
+        if (epic == null) return;
 
         List<Subtask> epicSubtasks = epic.getSubtasks().stream()
                 .map(subtasks::get)
                 .filter(Objects::nonNull)
                 .toList();
+
+        if (epicSubtasks.isEmpty()) {
+            epic.setStartTime(null);
+            epic.setDuration(null);
+            epic.setEndTime(null);
+            return;
+        }
 
         Duration totalDuration = epicSubtasks.stream()
                 .map(Subtask::getDuration)
@@ -223,21 +240,8 @@ public class InMemoryTaskManager implements TaskManager {
         return new ArrayList<>(prioritizedTasks);
     }
 
-    @Override
-    public boolean isTimeIntersecting(Task task1, Task task2) {
-        if (task1.getStartTime() == null || task1.getEndTime() == null ||
-                task2.getStartTime() == null || task2.getEndTime() == null) {
-            return false;
-        }
-
-        return task1.getStartTime().isBefore(task2.getEndTime()) &&
-                task1.getEndTime().isAfter(task2.getStartTime());
-    }
-
     private void validateTask(Task task) {
-        if (task.getStartTime() == null) {
-            throw new IllegalArgumentException("Задача должна иметь startTime.");
-        }
+        if (task.getStartTime() == null) return;
 
         Task lower = prioritizedTasks.lower(task);
         Task higher = prioritizedTasks.higher(task);
@@ -246,6 +250,15 @@ public class InMemoryTaskManager implements TaskManager {
                 (higher != null && isTimeIntersecting(task, higher))) {
             throw new IllegalArgumentException("Задача пересекается с другой задачей.");
         }
+    }
+
+    @Override
+    public boolean isTimeIntersecting(Task task1, Task task2) {
+        if (task1.getStartTime() == null || task2.getStartTime() == null) {
+            return false;
+        }
+        return task1.getStartTime().isBefore(task2.getEndTime()) &&
+                task1.getEndTime().isAfter(task2.getStartTime());
     }
 
     @Override

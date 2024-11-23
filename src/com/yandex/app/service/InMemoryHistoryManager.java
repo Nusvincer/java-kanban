@@ -82,5 +82,12 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
         return history;
     }
+
+    @Override
+    public void clear() {
+        head = null;
+        tail = null;
+        taskMap.clear();
+    }
 }
 

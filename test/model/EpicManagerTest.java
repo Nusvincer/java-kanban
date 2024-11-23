@@ -98,4 +98,34 @@ public class EpicManagerTest {
         assertNull(epic.getDuration(), "Если нет подзадач, продолжительность эпика должна быть null");
         assertNull(epic.getEndTime(), "Если нет подзадач, время окончания эпика должно быть null");
     }
+
+    @Test
+    public void testEpicWithoutSubtasks() {
+        InMemoryTaskManager manager = new InMemoryTaskManager();
+        Epic epic = new Epic("Test Epic", "Test Description", Status.NEW);
+        manager.addEpic(epic);
+
+        assertNull(epic.getStartTime(), "Если нет подзадач, время начала эпика должно быть null");
+        assertNull(epic.getEndTime(), "Если нет подзадач, время окончания эпика должно быть null");
+        assertNull(epic.getDuration(), "Если нет подзадач, продолжительность эпика должна быть null");
+    }
+
+    @Test
+    public void testEpicTimeAfterSubtaskUpdate() {
+        InMemoryTaskManager manager = new InMemoryTaskManager();
+        Epic epic = new Epic("Epic", "Description", Status.NEW);
+        manager.addEpic(epic);
+
+        Subtask subtask = new Subtask("Subtask", "Description", Status.NEW, epic.getId());
+        subtask.setStartTime(LocalDateTime.of(2024, 11, 18, 10, 0));
+        subtask.setDuration(Duration.ofMinutes(60));
+        manager.addSubtask(subtask);
+
+        subtask.setStartTime(LocalDateTime.of(2024, 11, 18, 11, 0));
+        manager.updateSubtask(subtask);
+
+        assertEquals(LocalDateTime.of(2024, 11, 18, 11, 0), epic.getStartTime(), "Время начала эпика должно быть пересчитано");
+    }
 }
+
+
