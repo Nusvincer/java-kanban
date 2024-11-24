@@ -1,4 +1,4 @@
-package test.service;
+package service;
 
 import com.yandex.app.model.Task;
 import com.yandex.app.service.HistoryManager;
@@ -31,5 +31,20 @@ public class HistoryManagerTest {
 
         List<Task> history = manager.getHistory();
         assertFalse(history.contains(task), "Task должен быть удален из истории");
+    }
+
+    @Test
+    public void testHistoryClear() {
+        HistoryManager manager = Managers.getDefaultHistory();
+
+        Task task1 = new Task("Task 1", "Description", Status.NEW);
+        Task task2 = new Task("Task 2", "Description", Status.NEW);
+
+        manager.add(task1);
+        manager.add(task2);
+
+        manager.clear();
+
+        assertTrue(manager.getHistory().isEmpty(), "История должна быть очищена");
     }
 }

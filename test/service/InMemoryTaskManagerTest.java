@@ -1,8 +1,9 @@
-package test.service;
+package service;
 
 import com.yandex.app.model.Epic;
 import com.yandex.app.model.Subtask;
 import com.yandex.app.model.Task;
+import com.yandex.app.service.InMemoryTaskManager;
 import com.yandex.app.service.TaskManager;
 import com.yandex.app.util.Managers;
 import com.yandex.app.util.Status;
@@ -42,5 +43,26 @@ public class InMemoryTaskManagerTest {
 
         assertNotNull(retrievedSubtask, "Подзадача должна быть доступна по ID");
         assertEquals(subtask, retrievedSubtask, "Полученная подзадача должна совпадать с добавленной подзадачей");
+    }
+
+    @Test
+    public void testClearAll() {
+        InMemoryTaskManager manager = new InMemoryTaskManager();
+
+        Task task = new Task("Task", "Description", Status.NEW);
+        manager.addTask(task);
+
+        Epic epic = new Epic("Epic", "Description", Status.NEW);
+        manager.addEpic(epic);
+
+        Subtask subtask = new Subtask("Subtask", "Description", Status.NEW, epic.getId());
+        manager.addSubtask(subtask);
+
+        manager.clearAll();
+
+        assertTrue(manager.getAllTasks().isEmpty(), "Все задачи должны быть удалены");
+        assertTrue(manager.getAllEpics().isEmpty(), "Все эпики должны быть удалены");
+        assertTrue(manager.getAllSubtasks().isEmpty(), "Все подзадачи должны быть удалены");
+        assertTrue(manager.getPrioritizedTasks().isEmpty(), "Список приоритетов должен быть пустым");
     }
 }

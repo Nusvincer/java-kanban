@@ -37,6 +37,9 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     private void removeNode(Node node) {
+        if (node == null) {
+            return;
+        }
         if (node.prev != null) {
             node.prev.next = node.next;
         } else {
@@ -79,4 +82,12 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
         return history;
     }
+
+    @Override
+    public void clear() {
+        head = null;
+        tail = null;
+        taskMap.clear();
+    }
 }
+
